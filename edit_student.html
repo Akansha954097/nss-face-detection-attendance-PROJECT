@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-warning text-dark">
+        <h4 class="card-title mb-0">
+            <i class="fas fa-edit me-2"></i>Edit Student
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.student_id|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.name|as_crispy_field }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.email|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.phone|as_crispy_field }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.role|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.is_active|as_crispy_field }}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Current Photo</label>
+                {% if student.photo %}
+                    <div class="mb-2">
+                        <img src="{{ student.photo.url }}" alt="Current Photo" class="rounded" width="100" height="100" style="object-fit: cover;">
+                    </div>
+                {% endif %}
+                <input type="file" class="form-control" name="photo" accept="image/*">
+                <div class="form-text">
+                    Upload new photo if you want to change
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-save me-2"></i>Update Student
+                </button>
+                <a href="{% url 'student_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

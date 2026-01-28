@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-warning text-dark">
+        <h4 class="card-title mb-0">
+            <i class="fas fa-user-edit me-2"></i>Manual Attendance (Admin Only)
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="event_id" class="form-label">Select Event</label>
+                        <select class="form-control" id="event_id" name="event_id" required>
+                            <option value="">-- Select Event --</option>
+                            {% for event in events %}
+                            <option value="{{ event.id }}" {% if selected_event and selected_event.id == event.id %}selected{% endif %}>
+                                {{ event.title }} ({{ event.date }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Students (For manual attendance)</label>
+                        <div class="border p-3" style="max-height: 300px; overflow-y: auto;">
+                            {% for student in students %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="students" value="{{ student.id }}" id="student{{ student.id }}">
+                                <label class="form-check-label" for="student{{ student.id }}">
+                                    {{ student.name }} ({{ student.student_id }})
+                                </label>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted">No students found</p>
+                            {% endfor %}
+                        </div>
+                        <div class="form-text">
+                            Select students whose faces were not recognized in group photo
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Manual Attendance Use Case:</h6>
+                        <ul class="mb-0">
+                            <li>Use this when student's face is not recognized in group photo</li>
+                            <li>Select event and check students to mark present</li>
+                            <li>Email notifications will be sent to selected students</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100">
+                        <i class="fas fa-user-check me-2"></i>Mark Manual Attendance
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

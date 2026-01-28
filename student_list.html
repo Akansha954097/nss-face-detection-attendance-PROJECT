@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-users me-2"></i>Student Management</h2>
+    <a href="{% url 'add_student' %}" class="btn btn-primary">
+        <i class="fas fa-user-plus me-2"></i>Add Student
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-list me-2"></i>All Students
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>
+                            {% if student.photo %}
+                                <img src="{{ student.photo.url }}" alt="Profile" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ student.student_id }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.phone }}</td>
+                        <td>
+                            <span class="badge bg-{% if student.role == 'admin' %}danger{% elif student.role == 'coordinator' %}info{% else %}success{% endif %}">
+                                {{ student.get_role_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if student.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if student.approval_status == 'pending' %}
+                                <a href="{% url 'approve_student' student.student_id %}" class="btn btn-sm btn-success" title="Approve"><i class="fas fa-check"></i></a>
+                                <a href="{% url 'reject_student' student.student_id %}" class="btn btn-sm btn-danger" title="Reject"><i class="fas fa-times"></i></a>
+                            {% endif %}
+                            <a href="{% url 'edit_student' student.student_id %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'delete_student' student.student_id %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No students found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

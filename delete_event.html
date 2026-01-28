@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-danger text-white">
+        <h4 class="card-title mb-0">
+            <i class="fas fa-trash me-2"></i>Delete Event
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Warning!</h5>
+            <p class="mb-0">You are about to delete this event. This action cannot be undone.</p>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>{{ event.title }}</h5>
+                <p class="mb-1"><strong>Date:</strong> {{ event.date }}</p>
+                <p class="mb-1"><strong>Time:</strong> {{ event.time }}</p>
+                <p class="mb-1"><strong>Venue:</strong> {{ event.venue }}</p>
+                <p class="mb-1"><strong>Coordinator:</strong> {{ event.coordinator.name }}</p>
+                <p class="mb-0"><strong>Status:</strong> 
+                    <span class="badge bg-{% if event.status == 'approved' %}success{% elif event.status == 'rejected' %}danger{% else %}warning{% endif %}">
+                        {{ event.get_status_display }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Confirm Delete
+                </button>
+                <a href="{% url 'event_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

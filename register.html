@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block auth_content %}
+<div class="container-fluid" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
+    <div class="row justify-content-center align-items-center py-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="card-title">
+                            <i class="fas fa-user-plus text-primary"></i><br>
+                            Create Account
+                        </h2>
+                        <p class="text-muted">Join NSS Face Attendance System</p>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" id="registrationForm">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.username|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.student_id|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.phone|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.email|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.role|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <!-- Face Photo Upload -->
+                        <div class="mb-3">
+                            <label class="form-label">Face Photo *</label>
+                            <input type="file" class="form-control" name="photo" id="photoInput" accept="image/*" required>
+                            <div class="form-text">
+                                Please upload a clear front-facing photo for face recognition
+                            </div>
+                        </div>
+
+                        <!-- Face Preview -->
+                        <div class="text-center mb-3">
+                            <div class="face-preview mx-auto mb-2">
+                                <i class="fas fa-user fa-3x text-muted"></i>
+                            </div>
+                            <small class="text-muted" id="faceStatus">No photo selected</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.password1|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.password2|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3" id="submitBtn">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account? 
+                            <a href="{% url 'login' %}" class="text-decoration-none">Sign in here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Photo preview
+        $('#photoInput').change(function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('.face-preview').html(`<img src="${e.target.result}" alt="Preview">`);
+                    $('#faceStatus').text('Photo selected').removeClass('text-muted').addClass('text-success');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>
+{% endblock %}

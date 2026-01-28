@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-danger text-white">
+        <h4 class="card-title mb-0">
+            <i class="fas fa-trash me-2"></i>Delete Student
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Warning!</h5>
+            <p class="mb-0">You are about to delete this student. This action cannot be undone.</p>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 text-center">
+                        {% if student.photo %}
+                            <img src="{{ student.photo.url }}" alt="Profile" class="rounded-circle" width="80" height="80" style="object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="fas fa-user text-muted" style="font-size: 2rem;"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-10">
+                        <h5>{{ student.name }}</h5>
+                        <p class="mb-1"><strong>Student ID:</strong> {{ student.student_id }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ student.email }}</p>
+                        <p class="mb-1"><strong>Role:</strong> {{ student.get_role_display }}</p>
+                        <p class="mb-0"><strong>Status:</strong> 
+                            {% if student.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Confirm Delete
+                </button>
+                <a href="{% url 'student_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

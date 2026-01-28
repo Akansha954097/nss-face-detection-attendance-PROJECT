@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tachometer-alt me-2"></i>Student Dashboard</h2>
+    <span class="badge bg-success">Welcome, {{ student.name }}</span>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card card-hover bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ my_attendance|length }}</h4>
+                        <p class="mb-0">Total Attendance</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-hover bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ upcoming_events|length }}</h4>
+                        <p class="mb-0">Upcoming Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-hover bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>Student</h4>
+                        <p class="mb-0">Your Role</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-graduate fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- My Attendance -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-history me-2"></i>My Recent Attendance
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if my_attendance %}
+                    {% for record in my_attendance %}
+                    <div class="border-bottom py-2">
+                        <h6 class="mb-1">{{ record.event.title }}</h6>
+                        <small class="text-muted">
+                            {{ record.attendance_time|date:"M d, Y" }} | 
+                            {% if record.is_manual %}
+                                <span class="badge bg-warning">Manual</span>
+                            {% else %}
+                                <span class="badge bg-success">Face Recognition</span>
+                            {% endif %}
+                        </small>
+                        <p class="mb-1 small">Marked by: {{ record.marked_by.name }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mb-0">No attendance records found</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar me-2"></i>Upcoming Events
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_events %}
+                    {% for event in upcoming_events %}
+                    <div class="border-bottom py-2">
+                        <h6 class="mb-1">{{ event.title }}</h6>
+                        <small class="text-muted">
+                            {{ event.date }} | {{ event.time }}
+                        </small>
+                        <p class="mb-1 small">{{ event.venue }}</p>
+                        <span class="badge bg-info">{{ event.coordinator.name }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mb-0">No upcoming events</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Info -->
+<div class="card mt-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i>Student Information
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Student ID:</strong> {{ student.student_id }}</p>
+                <p><strong>Name:</strong> {{ student.name }}</p>
+                <p><strong>Email:</strong> {{ student.email }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Phone:</strong> {{ student.phone }}</p>
+                <p><strong>Role:</strong> {{ student.get_role_display }}</p>
+                <p><strong>Status:</strong> 
+                    {% if student.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

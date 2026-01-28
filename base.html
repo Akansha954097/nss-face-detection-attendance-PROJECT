@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSS Face Attendance System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: #fff;
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            font-weight: bold;
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card-hover {
+            transition: transform 0.3s;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+        }
+        .face-preview {
+            width: 150px;
+            height: 150px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .face-preview img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .toast-container {
+            z-index: 9999;
+        }
+        .user-photo {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="d-flex flex-column p-3">
+                    <h4 class="text-white text-center mb-4">
+                        <i class="fas fa-graduation-cap"></i> NSS System
+                    </h4>
+                    
+                    <!-- User Info -->
+                    <div class="text-center text-white mb-4">
+                        {% if user.student.photo %}
+                            <img src="{{ user.student.photo.url }}" alt="Profile" class="rounded-circle user-photo mb-2">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2 user-photo">
+                                <i class="fas fa-user text-muted" style="font-size: 2rem;"></i>
+                            </div>
+                        {% endif %}
+                        <h6 class="mb-1">{{ user.student.name }}</h6>
+                        <small class="text-light">
+                            <span class="badge 
+                                {% if user.student.role == 'admin' %}bg-danger
+                                {% elif user.student.role == 'coordinator' %}bg-info
+                                {% else %}bg-success{% endif %}">
+                                {{ user.student.get_role_display }}
+                            </span>
+                        </small>
+                    </div>
+
+                    <!-- Navigation -->
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        
+                        <!-- ADMIN ONLY: Student Management -->
+                        {% if user.student.role == 'admin' %}
+                        <li class="nav-item">
+                            <a href="{% url 'student_list' %}" class="nav-link {% if 'student' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="fas fa-users me-2"></i>Manage Students
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- ADMIN & COORDINATOR: Events & Group Attendance -->
+                        {% if user.student.role == 'admin' or user.student.role == 'coordinator' %}
+                        <li class="nav-item">
+                            <a href="{% url 'event_list' %}" class="nav-link {% if 'event' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="fas fa-calendar-alt me-2"></i>Events
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'group_attendance' %}" class="nav-link {% if 'group_attendance' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="fas fa-camera me-2"></i>Group Attendance
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- ADMIN ONLY: Manual Attendance -->
+                        {% if user.student.role == 'admin' %}
+                        <li class="nav-item">
+                            <a href="{% url 'manual_attendance' %}" class="nav-link {% if 'manual_attendance' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="fas fa-user-edit me-2"></i>Manual Attendance
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- ALL USERS: Attendance Records -->
+                        <li class="nav-item">
+                            <a href="{% url 'attendance_records' %}" class="nav-link {% if 'attendance_records' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="fas fa-history me-2"></i>Attendance Records
+                            </a>
+                        </li>
+                        
+                        <!-- Logout -->
+                        <li class="nav-item mt-4">
+                            <a href="{% url 'logout' %}" class="nav-link text-warning">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Top bar with notifications -->
+                <div class="d-flex justify-content-end align-items-center p-3 border-bottom bg-white">
+                    <div class="dropdown me-2">
+                        <a class="btn btn-light position-relative" href="#" role="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifCount" style="display:none;">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown" style="min-width: 320px;">
+                            <li class="dropdown-header d-flex justify-content-between align-items-center">
+                                <span>Notifications</span>
+                                <button class="btn btn-sm btn-link" id="markAllRead">Mark all read</button>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <div id="notifItems">
+                                <li class="px-3 py-2 text-muted small">No notifications</li>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+                <div class="p-4">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        {% block auth_content %}{% endblock %}
+    {% endif %}
+
+    <!-- Messages/Notifications -->
+    {% if messages %}
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        {% for message in messages %}
+        <div class="toast show" role="alert">
+            <div class="toast-header 
+                {% if message.tags == 'success' %}bg-success
+                {% elif message.tags == 'error' %}bg-danger
+                {% elif message.tags == 'warning' %}bg-warning
+                {% else %}bg-info{% endif %} text-white">
+                <strong class="me-auto">
+                    {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle"></i> Success
+                    {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle"></i> Error
+                    {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-triangle"></i> Warning
+                    {% else %}
+                        <i class="fas fa-info-circle"></i> Info
+                    {% endif %}
+                </strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Bootstrap & jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    {% block scripts %}{% endblock %}
+    <script>
+        function renderNotifications(data){
+            const list = document.getElementById('notifItems');
+            list.innerHTML = '';
+            if (!data.items || data.items.length === 0){
+                list.innerHTML = '<li class="px-3 py-2 text-muted small">No notifications</li>';
+            } else {
+                data.items.forEach(n => {
+                    const a = n.url ? `<a href="/${n.url}" class="stretched-link"></a>` : '';
+                    const item = document.createElement('li');
+                    item.className = 'px-3 py-2 position-relative';
+                    item.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="me-2">
+                                <div class="fw-bold ${n.is_read ? 'text-muted' : ''}">${n.title}</div>
+                                <div class="small text-muted">${n.body}</div>
+                                <div class="small text-muted">${n.time}</div>
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                ${n.approve_url ? `<a class='btn btn-success' href='/${n.approve_url}' title='Approve'><i class='fas fa-check'></i></a>` : ''}
+                                ${n.reject_url ? `<a class='btn btn-danger' href='/${n.reject_url}' title='Reject'><i class='fas fa-times'></i></a>` : ''}
+                            </div>
+                        </div>
+                        ${a}
+                    `;
+                    list.appendChild(item);
+                });
+            }
+            const badge = document.getElementById('notifCount');
+            if (data.unread > 0){
+                badge.style.display = 'inline-block';
+                badge.textContent = data.unread;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        async function loadNotifications(){
+            try{
+                const res = await fetch('/api/notifications/feed/', {credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'}});
+                const data = await res.json();
+                renderNotifications(data);
+            }catch(e){/* ignore */}
+        }
+        function getCookie(name){
+            const match = document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : '';
+        }
+        async function markAll(){
+            try{
+                await fetch('/api/notifications/mark-read/', {method:'POST', credentials:'same-origin', headers:{'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With':'XMLHttpRequest'}});
+                loadNotifications();
+            }catch(e){}
+        }
+        async function doNotifAction(url){
+            try{
+                // Use GET for simplicity to avoid CSRF issues; server still checks auth
+                await fetch(url, {method:'GET', credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'}});
+                loadNotifications();
+                window.location.reload();
+            }catch(e){}
+        }
+        document.addEventListener('DOMContentLoaded', () =>{
+            loadNotifications();
+            setInterval(loadNotifications, 20000);
+            const btn = document.getElementById('markAllRead');
+            if (btn) btn.addEventListener('click', (e)=>{ e.preventDefault(); markAll(); });
+        });
+    </script>
+</body>
+</html>

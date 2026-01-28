@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tachometer-alt me-2"></i>Coordinator Dashboard</h2>
+    <span class="badge bg-info">Welcome, {{ student.name }}</span>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card card-hover bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_students }}</h4>
+                        <p class="mb-0">Total Students</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-hover bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_events }}</h4>
+                        <p class="mb-0">Total Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-hover bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ student.role|title }}</h4>
+                        <p class="mb-0">Your Role</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-tie fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- My Events: full width horizontal list -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar me-2"></i>My Recent Events
+                </h5>
+                <span class="badge bg-light text-primary">{{ my_events|length }} events</span>
+            </div>
+            <div class="card-body">
+                {% if my_events %}
+                    <div class="events-scroll d-flex gap-3 overflow-auto pb-2">
+                        {% for event in my_events %}
+                        <div class="event-card border rounded p-3" style="min-width: 280px;">
+                            <h6 class="mb-1">{{ event.title }}</h6>
+                            <small class="text-muted d-block mb-1">{{ event.date }} | {{ event.time }}</small>
+                            <p class="mb-2 small">{{ event.description|truncatewords:12 }}</p>
+                            <span class="badge bg-{% if event.status == 'approved' %}success{% elif event.status == 'rejected' %}danger{% else %}warning{% endif %}">
+                                {{ event.get_status_display }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center mb-0">No events created yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+.events-scroll::-webkit-scrollbar{height:6px}
+.events-scroll::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:3px}
+</style>
+
+<!-- Quick Actions -->
+<div class="card mt-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-bolt me-2"></i>Quick Actions
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <a href="{% url 'add_event' %}" class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-calendar-plus fa-2x mb-2"></i><br>
+                    Create Event
+                </a>
+            </div>
+            <div class="col-md-4 text-center">
+                <a href="{% url 'event_list' %}" class="btn btn-outline-success w-100 mb-2">
+                    <i class="fas fa-list fa-2x mb-2"></i><br>
+                    My Events
+                </a>
+            </div>
+            <div class="col-md-4 text-center">
+                <a href="{% url 'take_attendance' %}" class="btn btn-outline-warning w-100 mb-2">
+                    <i class="fas fa-camera fa-2x mb-2"></i><br>
+                    Take Attendance
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

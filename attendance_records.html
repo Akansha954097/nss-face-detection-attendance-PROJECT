@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-history me-2"></i>Attendance Records</h2>
+    <div>
+        {% if user.student.role == 'admin' or user.student.role == 'coordinator' %}
+        <a href="{% url 'group_attendance' %}" class="btn btn-success">
+            <i class="fas fa-camera me-2"></i>Group Attendance
+        </a>
+        {% endif %}
+        {% if user.student.role == 'admin' %}
+        <a href="{% url 'manual_attendance' %}" class="btn btn-warning">
+            <i class="fas fa-user-edit me-2"></i>Manual Attendance
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-list me-2"></i>All Attendance Records
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if records %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Event</th>
+                        <th>Date & Time</th>
+                        <th>Marked By</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if record.student.photo %}
+                                    <img src="{{ record.student.photo.url }}" alt="Profile" class="rounded-circle me-2" width="30" height="30" style="object-fit: cover;">
+                                {% endif %}
+                                {{ record.student.name }}
+                            </div>
+                        </td>
+                        <td>{{ record.event.title }}</td>
+                        <td>{{ record.attendance_time }}</td>
+                        <td>{{ record.marked_by.name }}</td>
+                        <td>
+                            {% if record.is_manual %}
+                                <span class="badge bg-warning">Manual</span>
+                            {% else %}
+                                <span class="badge bg-success">Auto</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h4>{{ records.count }}</h4>
+                        <p class="mb-0">Total Records</p>
+                    </div>
+                </div>
+            </div>
+        
+            
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No attendance records found</h5>
+            <p class="text-muted">Attendance records will appear here once marked.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

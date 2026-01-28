@@ -1,0 +1,463 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h2>
+    <span class="badge bg-danger">
+        <i class="fas fa-user-shield me-1"></i>Welcome, {{ user.get_full_name|default:user.username }}
+    </span>
+</div>
+
+<!-- Admin Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-2">
+        <div class="card card-hover bg-primary text-white">
+            <div class="card-body text-center p-3">
+                <h4>{{ total_students }}</h4>
+                <small>Total Students</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card card-hover bg-success text-white">
+            <div class="card-body text-center p-3">
+                <h4>{{ total_events }}</h4>
+                <small>Total Events</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card card-hover bg-warning text-dark">
+            <div class="card-body text-center p-3">
+                <h4>{{ pending_events }}</h4>
+                <small>Pending Events</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card card-hover bg-info text-white">
+            <div class="card-body text-center p-3">
+                <h4>{{ approved_events }}</h4>
+                <small>Approved Events</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card card-hover bg-danger text-white">
+            <div class="card-body text-center p-3">
+                <h4>{{ total_attendance }}</h4>
+                <small>Total Attendance</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card card-hover bg-dark text-white">
+            <div class="card-body text-center p-3">
+                <h4>{{ coordinators_count }}</h4>
+                <small>Coordinators</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Pending Events for Approval: Full width -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock me-2"></i>Pending Approval
+                </h5>
+                <span class="badge bg-dark">{{ pending_events_list.count }} events</span>
+            </div>
+            <div class="card-body">
+                {% if pending_events_list %}
+                    {% for event in pending_events_list %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div class="me-2 text-muted">{{ forloop.counter }}.</div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ event.title }}</h6>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ event.date }} |
+                                <i class="fas fa-user me-1"></i>{{ event.coordinator.name }}
+                            </small>
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ event.venue }}
+                            </small>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'approve_event' event.id %}" class="btn btn-success" title="Approve Event">
+                                <i class="fas fa-check"></i>
+                            </a>
+                            <a href="{% url 'reject_event' event.id %}" class="btn btn-danger" title="Reject Event">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            <a href="{% url 'event_list' %}" class="btn btn-info" title="View All Events">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <p class="text-muted mb-0">No pending events for approval</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Quick Actions -->
+<!-- Admin Quick Actions -->
+<div class="card mt-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-bolt me-2"></i>Admin Quick Actions
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-2 text-center">
+                <a href="{% url 'add_student' %}" class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-user-plus fa-2x mb-2"></i><br>
+                    Add Student
+                </a>
+            </div>
+            <div class="col-md-2 text-center">
+                <a href="{% url 'student_list' %}" class="btn btn-outline-success w-100 mb-2">
+                    <i class="fas fa-users fa-2x mb-2"></i><br>
+                    Manage Students
+                </a>
+            </div>
+            <div class="col-md-2 text-center">
+                <a href="{% url 'add_event' %}" class="btn btn-outline-info w-100 mb-2">
+                    <i class="fas fa-calendar-plus fa-2x mb-2"></i><br>
+                    Create Event
+                </a>
+            </div>
+            <div class="col-md-2 text-center">
+                <a href="{% url 'group_attendance' %}" class="btn btn-outline-warning w-100 mb-2">
+                    <i class="fas fa-camera fa-2x mb-2"></i><br>
+                    Group Attendance
+                </a>
+            </div>
+            <div class="col-md-2 text-center">
+                <a href="{% url 'manual_attendance' %}" class="btn btn-outline-danger w-100 mb-2">
+                    <i class="fas fa-user-edit fa-2x mb-2"></i><br>
+                    Manual Attendance
+                </a>
+            </div>
+            <div class="col-md-2 text-center">
+                <a href="{% url 'attendance_records' %}" class="btn btn-outline-secondary w-100 mb-2">
+                    <i class="fas fa-history fa-2x mb-2"></i><br>
+                    View Records
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Attendance Records -->
+<div class="card mt-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-clipboard-list me-2"></i>Recent Attendance Records
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if recent_attendance %}
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Event</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in recent_attendance %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+{{ record.student.name }}
+                            </div>
+                        </td>
+                        <td>{{ record.event.title }}</td>
+                        <td>{{ record.attendance_time|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            {% if record.is_manual %}
+                                <span class="badge bg-info">Manual</span>
+                            {% else %}
+                                <span class="badge bg-success">Face</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-3">
+            <i class="fas fa-clipboard-check fa-2x text-muted mb-2"></i>
+            <p class="text-muted mb-0">No attendance records yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- YEH CSS YAHAN ADD KAREIN -->
+<style>
+/* Custom CSS for Admin Dashboard */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: scale(1.05);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Statistics Cards */
+.row.mb-4 .col-md-2 {
+    padding: 0 8px;
+}
+
+.row.mb-4 .card {
+    height: 100%;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.row.mb-4 .card-body {
+    padding: 1rem;
+    text-align: center;
+}
+
+.row.mb-4 h4 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.row.mb-4 small {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+/* Main Content Row */
+.row:not(.mb-4) {
+    margin: 0 -10px;
+}
+
+.row:not(.mb-4) .col-md-6 {
+    padding: 0 10px;
+}
+
+/* Quick Actions */
+.btn {
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-success:hover,
+.btn-outline-info:hover,
+.btn-outline-warning:hover,
+.btn-outline-danger:hover,
+.btn-outline-secondary:hover {
+    color: white;
+}
+
+/* Table Styling */
+.table-responsive {
+    border-radius: 8px;
+}
+
+.table {
+    margin-bottom: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+/* Badge Styling */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Header Styling */
+.d-flex.justify-content-between.align-items-center.mb-4 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 2rem !important;
+}
+
+.d-flex.justify-content-between.align-items-center.mb-4 h2 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.d-flex.justify-content-between.align-items-center.mb-4 .badge {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Button Group Styling */
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    margin: 0 2px;
+}
+
+/* Event Cards Styling */
+.border-bottom.py-2 {
+    transition: background-color 0.2s ease;
+}
+
+.border-bottom.py-2:hover {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .row.mb-4 .col-md-2 {
+        margin-bottom: 1rem;
+    }
+    
+    .d-flex.justify-content-between.align-items-center.mb-4 {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Animation for numbers */
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.row.mb-4 h4 {
+    animation: countUp 0.8s ease-out;
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Icon styling */
+.fas, .fab {
+    margin-right: 0.5rem;
+}
+
+/* Quick Actions icons */
+.btn .fa-2x {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Status badges */
+.badge.bg-success { background-color: #28a745 !important; }
+.badge.bg-warning { background-color: #ffc107 !important; color: #000 !important; }
+.badge.bg-danger { background-color: #dc3545 !important; }
+.badge.bg-info { background-color: #17a2b8 !important; }
+.badge.bg-primary { background-color: #007bff !important; }
+.badge.bg-dark { background-color: #343a40 !important; }
+
+/* Card background colors */
+.bg-primary { background: linear-gradient(135deg, #007bff, #0056b3) !important; }
+.bg-success { background: linear-gradient(135deg, #28a745, #1e7e34) !important; }
+.bg-warning { background: linear-gradient(135deg, #ffc107, #e0a800) !important; }
+.bg-info { background: linear-gradient(135deg, #17a2b8, #138496) !important; }
+.bg-danger { background: linear-gradient(135deg, #dc3545, #c82333) !important; }
+.bg-dark { background: linear-gradient(135deg, #343a40, #23272b) !important; }
+
+/* Text colors for better contrast */
+.bg-warning.text-dark { color: #000 !important; }
+.bg-warning .text-dark { color: #000 !important; }
+</style>
+
+
+{% endblock %}

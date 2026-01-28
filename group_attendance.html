@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h4 class="card-title mb-0">
+            <i class="fas fa-users me-2"></i>Group Attendance
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="event_id" class="form-label">Select Event</label>
+                        <select class="form-control" id="event_id" name="event_id" required>
+                            <option value="">-- Select Event --</option>
+                            {% for event in events %}
+                            <option value="{{ event.id }}" {% if selected_event and selected_event.id == event.id %}selected{% endif %}>
+                                {{ event.title }} ({{ event.date }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="group_photo" class="form-label">Upload Group Photo</label>
+                        <input type="file" class="form-control" id="group_photo" name="group_photo" accept="image/*" required>
+                        <div class="form-text">
+                            Upload a clear group photo. System will automatically detect and mark attendance for all recognized students.
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> How it works:</h6>
+                        <ul class="mb-0">
+                            <li>Upload a group photo of students</li>
+                            <li>System will detect all faces automatically</li>
+                            <li>Recognized students will be marked present</li>
+                            <li>Email notifications will be sent to all students</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-camera me-2"></i>Mark Group Attendance
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">Today's Events</h6>
+                    </div>
+                    <div class="card-body">
+                        {% for event in events %}
+                            {% if event.date == today %}
+                            <div class="border-bottom py-2">
+                                <h6 class="mb-1">{{ event.title }}</h6>
+                                <small class="text-muted">
+                                    {{ event.time }} | {{ event.venue }}
+                                </small>
+                                <br>
+                                <a href="{% url 'group_attendance_event' event.id %}" class="btn btn-sm btn-outline-primary mt-1">
+                                    Select This Event
+                                </a>
+                            </div>
+                            {% endif %}
+                        {% empty %}
+                            <p class="text-muted">No active events today</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">Tips for Better Recognition</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="small mb-0">
+                            <li>Use good lighting</li>
+                            <li>Ensure faces are clearly visible</li>
+                            <li>Avoid blurry photos</li>
+                            <li>Front-facing photos work best</li>
+                            <li>Group size: 10-50 students recommended</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
