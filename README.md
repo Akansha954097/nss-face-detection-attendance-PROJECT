@@ -110,5 +110,5 @@ The NSS Face Detection Attendance System provides a smart, secure, and efficient
 
 
 
-✨ *Developed as an NSS Project*
+
 
